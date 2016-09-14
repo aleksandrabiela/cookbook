@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    
+    <div class="well">
+        <h2>
+            <small> REJESTRACJA </small>
+        </h2>
+        {{ form_start(RegisterType) }}
+        {{ form_widget(RegisterType) }}
+        {{ form_end(RegisterType) }}
+    </div>
+    
+{% endblock %}

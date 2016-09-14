@@ -2,12 +2,14 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title>{% block title %}COOKBOOK{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
-        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.css') }}" />
     </head>
-    <body>
+    <body style="margin:0px auto; text-align:center">
+        <h1> COOKBOOK </h1>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
+        <script src= "{{ asset('bootstrap/js/bootstrap.js') }}"> </script>       
     </body>
 </html>
