@@ -2,5 +2,6 @@
 <!-- Komodo Project File - DO NOT EDIT -->
 <project id="f2a046cd-2cbc-4fea-99c0-5d3d19e40683" kpf_version="5" name="cookbook.komodoproject">
 <preference-set idref="f2a046cd-2cbc-4fea-99c0-5d3d19e40683" id="project" preftype="project">
+  <long id="prefs_version">1</long>
 </preference-set>
 </project>

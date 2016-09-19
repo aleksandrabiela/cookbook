@@ -2,12 +2,19 @@
 
 {% block body %}
     
-    <div class="well">
+    <div class="well" style="text-align:center">
         <h2>
             <small> REJESTRACJA </small>
         </h2>
+        {{ error }}
         {{ form_start(RegisterType) }}
-        {{ form_widget(RegisterType) }}
+        {{ form_widget(RegisterType.login, {'attr': {'class': 'form-control register_field', 'placeholder': "LOGIN"}} ) }}
+        <br/>
+        {{ form_widget(RegisterType.password, {'attr': {'class': 'form-control register_field', 'placeholder': "HASŁO"}} ) }}
+        <br/>
+        {{ form_widget(RegisterType.password2, {'attr': {'class': 'form-control register_field', 'placeholder': "POWTÓRZ HASŁO"}} ) }}
+        <br/>
+        {{ form_widget(RegisterType.ok, {'attr': {'class': 'btn btn-primary'}}) }}
         {{ form_end(RegisterType) }}
     </div>
     
