@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="well" style="text-align:center">
+         {{ form_start(CategoryType) }}
+         {{ form_widget(CategoryType.name, {'attr': {'class': 'form-control register_field', 'placeholder': "nazwa"}} ) }}
+        <br/>
+         {{ form_widget(CategoryType.description, {'attr': {'class': 'form-control register_field', 'placeholder': "tutaj dodaj opis kategorii"}} ) }}
+        <br/>
+         {{ form_widget(CategoryType.zapisz, {'attr': {'class': 'btn btn-primary'}}) }}
+         <a href="/categories" class="btn btn-primary">Anuluj</a>
+         {{ form_end(CategoryType)}}
+    </div>
+{% endblock %}

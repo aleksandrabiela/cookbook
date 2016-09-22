@@ -7,8 +7,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Form\RegisterType;
 use AppBundle\Form\LoginType;
+use AppBundle\Form\CategoryType;
+use AppBundle\Entity\Category;
 use AppBundle\Entity\ProgramUser;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class DefaultController extends Controller
 {
@@ -18,9 +21,7 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..'),
-        ]);
+        return $this->render('default/index.html.twig');
     }
     
     /**
@@ -67,6 +68,8 @@ class DefaultController extends Controller
      */
     public function loginAction(Request $request)
     {
+        $session = $request->getSession();
+        $session->clear();
         $error = "";
         $user1 = new ProgramUser();
         $loginForm = $this->createForm(LoginType::class, $user1);
@@ -81,10 +84,41 @@ class DefaultController extends Controller
             }
             else
             {
-                
+                $session->set('login', $check->getLogin());
+                $session->set('id', $check->getId());
+                $session->set('admin', $check->getAdmin());
+                return $this->redirect("/");
             }
         }
         return $this->render('default/login.html.twig', array('LoginType' => $loginForm->createView(),
                                                               'error' => $error));
+    }
+    
+    /**
+     * @Route("/categories", name="categories")
+     */
+    public function categoriesAction(Request $request)
+    {
+        $categories = $this->getDoctrine()->getRepository('AppBundle:Category')->findAll();
+        return $this->render('default/categories.html.twig', array('Categories' => $categories));
+    }
+    
+    /**
+     * @Route("/category", name="category")
+     */
+    public function categoryAction(Request $request)
+    {
+        $category = new Category();
+        $categoryForm = $this->createForm(CategoryType::class, $category);
+        $categoryForm->handleRequest($request);
+        if($categoryForm->isSubmitted())
+        {
+            $category = $categoryForm->getData();
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($category);
+            $manager->flush();
+            return $this->redirect("/categories");
+        }
+        return $this->render('default/category.html.twig', array('CategoryType' => $categoryForm->createView()));
     }
 }
