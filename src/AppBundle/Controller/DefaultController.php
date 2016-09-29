@@ -8,21 +8,15 @@ use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Form\RegisterType;
 use AppBundle\Form\LoginType;
 use AppBundle\Form\CategoryType;
+use AppBundle\Form\RecipeType;
 use AppBundle\Entity\Category;
+use AppBundle\Entity\Recipe;
 use AppBundle\Entity\ProgramUser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class DefaultController extends Controller
 {
-    /**
-     * @Route("/", name="homepage")
-     */
-    public function indexAction(Request $request)
-    {
-        // replace this example code with whatever you need
-        return $this->render('default/index.html.twig');
-    }
     
     /**
      * @Route("/register", name="register")
@@ -91,7 +85,8 @@ class DefaultController extends Controller
             }
         }
         return $this->render('default/login.html.twig', array('LoginType' => $loginForm->createView(),
-                                                              'error' => $error));
+                                                              'error' => $error,
+                                                              'session' => $session));
     }
     
     /**
@@ -101,6 +96,26 @@ class DefaultController extends Controller
     {
         $categories = $this->getDoctrine()->getRepository('AppBundle:Category')->findAll();
         return $this->render('default/categories.html.twig', array('Categories' => $categories));
+    }
+    
+    /**
+     * @Route("/category/{id}", name="categoryEdit")
+     */
+    public function categoryEditAction($id, Request $request)
+    {
+        $repository = $this->getDoctrine()->getRepository('AppBundle:Category');
+        $category = $repository->findOneBy(array('id' => $id));
+        $categoryForm = $this->createForm(CategoryType::Class, $category);    
+        $categoryForm->handleRequest($request);
+        if($categoryForm->isSubmitted())
+        {
+            $category = $categoryForm->getData();
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($category);
+            $manager->flush();
+            return $this->redirect("/categories");
+        }
+        return $this->render('default/category.html.twig', array('CategoryType' => $categoryForm->createView()));
     }
     
     /**
@@ -120,5 +135,72 @@ class DefaultController extends Controller
             return $this->redirect("/categories");
         }
         return $this->render('default/category.html.twig', array('CategoryType' => $categoryForm->createView()));
+    }
+    
+    /**
+     * @Route("/recipes", name="recipes")
+     */
+    public function recipesAction(Request $request)
+    {
+        $message = "";
+        $recipes = $this->getDoctrine()->getRepository('AppBundle:Recipe')->findAll();
+        return $this->render('default/index.html.twig', array('Recipes' => $recipes));
+    }
+    
+    /**
+     * @Route("/recipe/{id}", name="recipeEdit")
+     */
+    public function recipeEditAction($id, Request $request)
+    {
+        $session = $request->getSession();
+        $message = "";
+        $repository = $this->getDoctrine()->getRepository('AppBundle:Recipe');
+        $recipe = $repository->findOneBy(array('id' => $id));
+        $recipeForm = $this->createForm(RecipeType::Class, $recipe);    
+        $recipeForm->handleRequest($request);
+        if($recipeForm->isSubmitted())
+        {
+            $recipe = $recipeForm->getData();
+            $userId = $session->get('id');
+            $recipe->setUserId($userId);
+            $pom = $recipe->getRecipeCategoryId();
+            $recipeid = $pom->getId();
+            $recipe->setRecipeCategoryId($recipeid);
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($recipe);
+            $manager->flush();
+            $message = "Edytowano przepis";
+            return $this->redirect("/recipes");
+        }
+        return $this->render('default/recipe.html.twig', array('RecipeType' => $recipeForm->createView(),
+                                                               'message' => $message));
+    }
+    
+    /**
+     * @Route("/recipe", name="recipe")
+     */
+    public function recipeAction(Request $request)
+    {
+        $message = "";
+        $session = $request->getSession();
+        $recipe = new Recipe();
+        $recipeForm = $this->createForm(RecipeType::class, $recipe);
+        $recipeForm->handleRequest($request);
+        if($recipeForm->isSubmitted())
+        {
+            $recipe = $recipeForm->getData();
+            $userId = $session->get('id');
+            $recipe->setUserId($userId);
+            $pom = $recipe->getRecipeCategoryId();
+            $recipeid = $pom->getId();
+            $recipe->setRecipeCategoryId($recipeid);
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($recipe);
+            $manager->flush();
+            $message = "Dodano przepis";
+            return $this->redirect("/recipes");
+        }
+        return $this->render('default/recipe.html.twig', array('RecipeType' => $recipeForm->createView(),
+                                                               'message' => $message));
     }
 }

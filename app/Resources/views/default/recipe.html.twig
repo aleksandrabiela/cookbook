@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="well" style="text-align:center; max-width:300px; margin:10px auto">
+        {{ form_start(RecipeType) }}
+        {{ form_widget(RecipeType.title, {'attr': {'class': 'form-control', 'placeholder': "Tytuł"}} ) }}
+        {{ form_widget(RecipeType.content, {'attr': {'class': 'form-control', 'placeholder': "Treść przepisu"}} ) }}
+        <h4> KATEGORIA </h4>
+        {{ form_widget(RecipeType.recipe_category_id, {'attr': {'class': 'form-control'}} ) }}
+        {{ form_widget(RecipeType.zapisz, {'attr': {'class': 'btn btn-primary'}}) }}
+        {{ form_end(RecipeType) }}
+    </div>
+{% endblock %}

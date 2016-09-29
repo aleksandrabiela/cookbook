@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>{% block title %}COOKBOOK{% endblock %}</title>
+        <title class="large-blur">{% block title %}COOKBOOK{% endblock %}</title>
         {% block stylesheets %}
             <style>
                 .register_field
@@ -16,11 +16,15 @@
     </head>
     <body style="margin:0px auto; text-align:center">
         <h1> COOKBOOK </h1>
-        <div class="btn-group" role="group" aria-label="...">
-            <a href="/" class="btn btn-default">Przepisy</a>
-            <a href="/categories" class="btn btn-default">Kategorie</a>
-            <a href="/register" class="btn btn-default">Rejestracja</a>
-            <a href="/login" class="btn btn-default">Logowanie</a>
+        <div class="btn-group btn-group-lg" role="group" aria-label="...">
+            <a href="/recipes" class="btn btn-default">Przepisy</a>
+            {% if app.session.has('id') %}
+                <a href="/categories" class="btn btn-default">Kategorie</a>
+            {% else %}
+                <a href="/categories" class="btn btn-default">Kategorie</a>
+                <a href="/register" class="btn btn-default">Rejestracja</a>
+                <a href="/login" class="btn btn-default">Logowanie</a>
+            {% endif %}
         </div>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}

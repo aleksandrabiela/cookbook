@@ -1,6 +1,14 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    
+    <br/></br>
+    <a href="/recipe" class="btn btn-primary"> Dodaj przepis </a> <br/> <br/> <br/>
+    {% for recipe in Recipes %}
+        <div class="well" style="text-align:center; max-width:300px; margin:10px auto">  
+            <h4> {{ recipe.title }} <br/> </h4>
+            {{ recipe.content }} <br/>
+             <a href="/recipe/{{ recipe.id }}" class="btn btn-primary">Zobacz</a>
+        </div>
+    {% endfor %}
 {% endblock %}
 
