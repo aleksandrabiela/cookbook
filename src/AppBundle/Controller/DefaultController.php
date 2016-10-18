@@ -9,14 +9,24 @@ use AppBundle\Form\RegisterType;
 use AppBundle\Form\LoginType;
 use AppBundle\Form\CategoryType;
 use AppBundle\Form\RecipeType;
-use AppBundle\Entity\Category;
-use AppBundle\Entity\Recipe;
+use AppBundle\Form\CommentType;
 use AppBundle\Entity\ProgramUser;
+use AppBundle\Entity\Category;
+use AppBundle\Entity\Comment;
+use AppBundle\Entity\Recipe;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class DefaultController extends Controller
 {
+    
+    /**
+     * @Route("/", name="homepage")
+     */
+    public function homePageAction(Request $request)
+    {
+        return $this->redirect("/recipes");
+    }
     
     /**
      * @Route("/register", name="register")
@@ -141,10 +151,12 @@ class DefaultController extends Controller
      * @Route("/recipes", name="recipes")
      */
     public function recipesAction(Request $request)
-    {
+    { 
         $message = "";
         $recipes = $this->getDoctrine()->getRepository('AppBundle:Recipe')->findAll();
-        return $this->render('default/index.html.twig', array('Recipes' => $recipes));
+        $categories = $this->getDoctrine()->getRepository('AppBundle:Category')->findAll();
+        return $this->render('default/index.html.twig', array('Recipes' => $recipes,
+                                                              'Categories' => $categories));
     }
     
     /**
@@ -202,5 +214,72 @@ class DefaultController extends Controller
         }
         return $this->render('default/recipe.html.twig', array('RecipeType' => $recipeForm->createView(),
                                                                'message' => $message));
+    }
+    
+    /**
+    * @Route("/recipeView/{id}", name="recipeView")
+    */
+    public function recipeViewAction($id, Request $request)
+    {
+        $session = $request->getSession();
+        $message = "";
+        $repository = $this->getDoctrine()->getRepository('AppBundle:Recipe');
+        $recipe = $repository->findOneBy(array('id' => $id));
+        $user_id = $recipe->getUserId();
+        $rec_cat_id = $recipe->getRecipeCategoryId();
+        $session->set('recipe_id', $id);
+        $repository = $this->getDoctrine()->getRepository('AppBundle:Category');
+        $category = $repository->findOneBy(array('id' => $rec_cat_id));
+ 
+        $manager = $this->getDoctrine()->getManager();
+		$builder = $manager->createQueryBuilder();
+		$builder->select(array('c.content', 'u.login'))
+				->from('AppBundle:Comment', 'c')
+				->join('AppBundle:ProgramUser', 'u', 'WITH', 'u.id = c.user_id')
+				->where('c.recipe_id = '.$id);
+		$comment = $builder->getQuery()->getResult();
+        return $this->render('default/recipeView.html.twig', array('recipe' => $recipe,
+                                                                   'user_id' => $user_id,
+                                                                   'comment' => $comment,
+                                                                   'category' => $category));
+    }
+    
+    /**
+    * @Route("/categoryList/{id}", name="categoryList")
+    */
+    public function categoryList($id, Request $request)//lista przepisów w danej kategorii
+    {
+        $repository = $this->getDoctrine()->getRepository('AppBundle:Recipe');
+        $recipe = $repository->findBy(array('recipe_category_id' => $id));
+        return $this->render('default/categoryList.html.twig', array('Recipes' => $recipe));
+    }
+    
+    /**
+     * @Route("/comment", name="comment")
+     */
+    public function commentAction(Request $request)
+    {
+        $message = "";
+        $session = $request->getSession();
+        $comment = new Comment();
+        $commentForm = $this->createForm(CommentType::class, $comment);
+        $commentForm->handleRequest($request);
+        if($commentForm->isSubmitted())
+        {
+            $comment = $commentForm->getData();
+            $manager = $this->getDoctrine()->getManager();
+            $recipe_id = $session->get('recipe_id');
+            $userId = $session->get('id');
+            $comment->setRecipeId($recipe_id);
+            $comment->setUserId($userId);
+            $manager->persist($comment);
+            $manager->flush();
+            $message = "dodano komentarz";
+            $id = $recipe_id;
+            return $this->redirectToRoute("recipeView", array('id' => $recipe_id));
+        }
+        return $this->render('default/comment.html.twig', array('CommentType' => $commentForm->createView(),
+                                                               'message' => $message,
+                                                               'recipeId' => $session->get('recipe_id')));
     }
 }

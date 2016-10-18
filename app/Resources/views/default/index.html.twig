@@ -1,14 +1,27 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <br/></br>
-    <a href="/recipe" class="btn btn-primary"> Dodaj przepis </a> <br/> <br/> <br/>
-    {% for recipe in Recipes %}
-        <div class="well" style="text-align:center; max-width:300px; margin:10px auto">  
-            <h4> {{ recipe.title }} <br/> </h4>
-            {{ recipe.content }} <br/>
-             <a href="/recipe/{{ recipe.id }}" class="btn btn-primary">Zobacz</a>
-        </div>
-    {% endfor %}
+       
+        <table style="width: 500px; margin: 0 auto; text-align: left; padding: 50">
+            <td style="vertical-align: top; padding-top: 85px; padding-right: 30px">
+                <div class="list-group">
+                    <h4> Kategorie przepisów: </h4>
+                    {% for category in Categories %}
+                        <a href="categoryList/{{ category.id }}" class="list-group-item list-group-item-info">{{ category.name }}</a>
+                        <br/>
+                    {% endfor %}
+                </div>    
+            </td>
+            <td align="center">
+                <br/></br>
+                <a href="/recipe" class="btn btn-primary"> Dodaj przepis </a> <br/> <br/> <br/>
+                {% for recipe in Recipes %}
+                    <div class="well" style="text-align:center; max-width:300px; margin:10px auto">  
+                    <h4> {{ recipe.title }} <br/> </h4>
+                    <a href="/recipeView/{{ recipe.id }}" class="btn btn-primary">Zobacz</a>
+                    </div>
+                {% endfor %}        
+            </td>
+        </table>
 {% endblock %}
 

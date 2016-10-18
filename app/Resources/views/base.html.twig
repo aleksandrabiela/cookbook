@@ -10,18 +10,30 @@
                     max-width: 200px;
                     margin: 0px auto;
                 }
+                .table_style
+                {
+                    padding: 30px auto;
+                }
             </style>
         {% endblock %}
         <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.css') }}" />
     </head>
     <body style="margin:0px auto; text-align:center">
         <h1> COOKBOOK </h1>
+        {% if app.session.has('login') %}
+            <br/>
+             Jesteś zalogowany jako: 
+            {{ app.session.get('login') }}
+            <br/> <br/>
+        {% endif %}
         <div class="btn-group btn-group-lg" role="group" aria-label="...">
             <a href="/recipes" class="btn btn-default">Przepisy</a>
             {% if app.session.has('id') %}
-                <a href="/categories" class="btn btn-default">Kategorie</a>
+                {% if (app.session.get('admin') == 1) %}
+                    <a href="/categories" class="btn btn-default">Kategorie</a>
+                {% endif %}
+                <a href="/login" class="btn btn-default">Wyloguj</a>
             {% else %}
-                <a href="/categories" class="btn btn-default">Kategorie</a>
                 <a href="/register" class="btn btn-default">Rejestracja</a>
                 <a href="/login" class="btn btn-default">Logowanie</a>
             {% endif %}

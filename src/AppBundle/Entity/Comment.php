@@ -6,9 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
 * @ORM\Entity
-* @ORM\Table(name="Recipe")
+* @ORM\Table(name="Comment")
 */
-class Recipe
+class Comment
 {
     /**
       * @ORM\id
@@ -17,21 +17,17 @@ class Recipe
       */
     protected $id;
      /**
-      * @ORM\Column(type="string", length=30)
-      */
-    protected $title;
-     /**
       * @ORM\Column(type="string")
       */
     protected $content;
      /**
       * @ORM\Column(type="integer")
       */
-    protected $user_id;
+    protected $recipe_id;
      /**
       * @ORM\Column(type="integer")
       */
-    protected $recipe_category_id;
+    protected $user_id;
      
     public function getId()
     {
@@ -41,16 +37,6 @@ class Recipe
     public function setId($id)
     {
          $this->id = $id;
-    }
-    
-    public function getTitle()
-    {
-        return $this->title;
-    }
-    
-    public function setTitle($title)
-    {
-        $this->title = $title;
     }
     
     public function getContent()
@@ -63,6 +49,16 @@ class Recipe
         $this->content = $content;
     }
     
+    public function getRecipeId()
+    {
+        return $this->recipe_id;
+    }
+    
+    public function setRecipeId($recipe_id)
+    {
+        $this->recipe_id = $recipe_id;
+    }
+    
     public function getUserId()
     {
         return $this->user_id;
@@ -72,14 +68,4 @@ class Recipe
     {
         $this->user_id = $user_id;
     }
-    
-    public function getRecipeCategoryId()
-    {
-        return $this->recipe_category_id;
-    }
-    
-    public function setRecipeCategoryId($recipe_category_id)
-    {
-        $this->recipe_category_id = $recipe_category_id;
-    }
-}
+}    

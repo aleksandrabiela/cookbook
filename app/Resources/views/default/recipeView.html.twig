@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <br/></br>
+    <a href="/recipe" class="btn btn-primary"> Dodaj przepis </a> <br/> <br/> <br/>
+    <div class="well" style="text-align:center; max-width:800px; margin:10px auto">  
+        <h4> {{ recipe.title }} <br/> </h4>
+        <h5 style="font-weight:bold">
+            Kategoria:
+            {{ category.name }} <br/>
+        </h5>
+        {{ recipe.content }} <br/>
+        {% if app.session.get('id') == user_id or app.session.get('admin') == 1 %}
+            <a href="/recipe/{{ recipe.id }}" class="btn btn-primary">Edytuj</a>
+        {% endif %}
+    </div>
+    {% if app.session.has('login') %}
+        <a href="/comment" class="btn btn-primary"> Dodaj komentarz </a> <br/> <br/>
+    {% endif %}
+    {% for com in comment %}
+        <div class="alert alert-success" style="text-align:center; max-width:300px; margin:10px auto">  
+            {{ com.content }} <br/>
+            <h6 style="color: black"> 
+                autor:
+                {{ com.login }}
+            </h6>
+        </div>
+    {% endfor %}
+{% endblock %}
+
