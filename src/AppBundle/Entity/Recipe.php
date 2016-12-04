@@ -32,6 +32,10 @@ class Recipe
       * @ORM\Column(type="integer")
       */
     protected $recipe_category_id;
+     /**
+      * @ORM\Column(type="blob")
+      */
+    protected $picture;
      
     public function getId()
     {
@@ -81,5 +85,15 @@ class Recipe
     public function setRecipeCategoryId($recipe_category_id)
     {
         $this->recipe_category_id = $recipe_category_id;
+    }
+    
+    public function getPicture()
+    {
+        return imagecreatefromstring($this->picture);
+    }
+    
+    public function setPicture($picture)
+    {
+        $this->picture = $picture;
     }
 }
