@@ -1,19 +1,19 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    
-    <div class="well" style="text-align:center">
-        <h2>
-            <small> LOGOWANIE </small>
-        </h2>
-        {{ error }}
-        {{ form_start(LoginType) }}
-        {{ form_widget(LoginType.login, {'attr': {'class': 'form-control register_field', 'placeholder': "LOGIN"}} ) }}
+    <div class="well" style="background-color: #222222; max-width: 400px; text-align: center; color: #FFFFFF; margin: 0px auto; border-radius: 5%;">
+        <h4>logowanie</h4>
+        {% if error|length > 0 %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+        {% endif %}
+        {{ form_start(loginForm) }}
+        <p>login:</p>
+        {{ form_widget(loginForm.login, {'attr': {'class': 'form-control register_field'}} ) }}
+        <p>hasło:</p>
+        {{ form_widget(loginForm.password, {'attr': {'class': 'form-control register_field'}} ) }}
         <br/>
-        {{ form_widget(LoginType.password, {'attr': {'class': 'form-control register_field', 'placeholder': "HASŁO"}} ) }}
-        <br/>
-        {{ form_widget(LoginType.ok, {'attr': {'class': 'btn btn-primary'}}) }}
-        {{ form_end(LoginType) }}
+        {{ form_widget(loginForm.zaloguj, {'attr': {'class': 'btn btn-primary'}}) }}
+        {{ form_end(loginForm) }}
     </div>
     
 {% endblock %}

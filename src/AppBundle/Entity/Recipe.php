@@ -33,7 +33,7 @@ class Recipe
       */
     protected $recipe_category_id;
      /**
-      * @ORM\Column(type="blob")
+      * @ORM\Column(type="string")
       */
     protected $picture;
      
@@ -89,7 +89,7 @@ class Recipe
     
     public function getPicture()
     {
-        return imagecreatefromstring($this->picture);
+        return $this->picture;
     }
     
     public function setPicture($picture)

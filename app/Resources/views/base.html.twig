@@ -3,6 +3,11 @@
     <head>
         <meta charset="UTF-8" />
         <title class="large-blur">{% block title %}COOKBOOK{% endblock %}</title>
+        <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}" />
+        <script src="{{ asset('angular/angular.min.js') }}"></script>
+        <script src="{{ asset('jquery/jquery.min.js') }}"></script>
+        <script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"> </script>    
+        <script src="{{ asset('bootstrap/js/filestyle.js') }}"> </script>
         {% block stylesheets %}
             <style>
                 .register_field
@@ -14,32 +19,77 @@
                 {
                     padding: 30px auto;
                 }
+                p
+                {
+                    margin-top: 5px;
+                }
             </style>
         {% endblock %}
-        <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.css') }}" />
     </head>
-    <body style="margin:0px auto; text-align:center">
-        <h1> COOKBOOK </h1>
-        {% if app.session.has('login') %}
-            <br/>
-             Jesteś zalogowany jako: 
-            {{ app.session.get('login') }}
-            <br/> <br/>
-        {% endif %}
-        <div class="btn-group btn-group-lg" role="group" aria-label="...">
-            <a href="/recipes" class="btn btn-default">Przepisy</a>
-            {% if app.session.has('id') %}
-                {% if (app.session.get('admin') == 1) %}
-                    <a href="/categories" class="btn btn-default">Kategorie</a>
-                {% endif %}
-                <a href="/login" class="btn btn-default">Wyloguj</a>
-            {% else %}
-                <a href="/register" class="btn btn-default">Rejestracja</a>
-                <a href="/login" class="btn btn-default">Logowanie</a>
-            {% endif %}
+    <body style="margin:0px auto; text-align:center; margin-top: 55px;">
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+              <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                </button>
+                <img src="{{ asset('logo.png') }}" />
+              </div>
+              <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                  <li class="active"><a href="#">Przepisy</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if app.session.has('id') %}
+                        <li><img src="{{ asset(app.session.get('awatar')) }}" style="height: 50px;" /></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ app.session.get('login') }}
+                            <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="/account">Ustawienia</a></li>
+                              <li><a href="/logout">Wyloguj</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><img src="{{ asset('guest.png') }}" style="height: 50px;" /></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Gość
+                            <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="#" data-toggle="modal" data-target=".bs-example-modal-sm">Logowanie</a></li>
+                              <li><a href="/register">Rejestracja</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+              </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    {{ form_start(LoginType, {'action': path('login'), 'method': 'POST'}) }}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Logowanie</h4>
+                    </div>
+                    <div class="modal-body" style="background-color: #222222; color: #FFFFFF;">
+                        <p>login:</p>
+                        {{ form_widget(LoginType.login, {'attr': {'class': 'form-control register_field'}} ) }}
+                        <p>hasło:</p>
+                        {{ form_widget(LoginType.password, {'attr': {'class': 'form-control register_field'}} ) }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Anuluj</button>
+                        {{ form_widget(LoginType.zaloguj, {'attr': {'class': 'btn btn-primary'}}) }}
+                    </div>
+                    {{ form_end(LoginType) }}
+                </div>
+            </div>
         </div>
         {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
-        <script src= "{{ asset('bootstrap/js/bootstrap.js') }}"> </script>       
     </body>
 </html>

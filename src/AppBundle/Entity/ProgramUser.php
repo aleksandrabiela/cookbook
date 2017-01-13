@@ -28,6 +28,14 @@ class ProgramUser
       * @ORM\Column(type="integer")
       */
     protected $admin;
+    /**
+      * @ORM\Column(type="string", length=100)
+      */
+    protected $awatar;
+    /**
+      * @ORM\Column(type="string")
+      */
+    protected $about;
     
     public function getId()
     {
@@ -67,5 +75,22 @@ class ProgramUser
     public function setAdmin($admin)
     {
         $this->admin = $admin;
+    }
+    
+     public function getAwatar()
+    {
+        return $this->awatar;
+    }
+    public function setAwatar($awatar)
+    {
+        $this->awatar = $awatar;
+    }
+    public function setAbout($about)
+    {
+        $this->about = $about;
+    }
+    public function getAbout()
+    {
+        return $this->about;
     }
 }

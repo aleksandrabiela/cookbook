@@ -10,6 +10,7 @@ use AppBundle\Form\LoginType;
 use AppBundle\Form\CategoryType;
 use AppBundle\Form\RecipeType;
 use AppBundle\Form\CommentType;
+use AppBundle\Form\AwatarType;
 use AppBundle\Entity\ProgramUser;
 use AppBundle\Entity\Category;
 use AppBundle\Entity\Comment;
@@ -34,38 +35,42 @@ class DefaultController extends Controller
      */
     public function registerAction(Request $request)
     {
-        $error = "";
+        $submitted = false;
+        $passwordError = false;
+        $loginError = false;
         $user1 = new ProgramUser();
+        $loginForm = $this->createForm(LoginType::class);
         $registerForm = $this->createForm(RegisterType::class, $user1);
         $registerForm->handleRequest($request); //zapisane pola w formularzu, po odświeżeniu
         if($registerForm->isSubmitted())
         {
+            $submitted = true;
             $user1 = $registerForm->getData();
             $pass1 = $registerForm['password']->getData();
             $pass2 = $registerForm['password2']->getData();
-            if($pass1 != $pass2)
+            if($pass1 != $pass2) $passwordError = true;
+            $check = $this->getDoctrine()->getRepository('AppBundle:ProgramUser')->findOneBy(array('login'=>$user1->getLogin()));
+            if($check != null) $loginError = true;
+            if(!$loginError && !$passwordError)
             {
-                $error = "hasła muszą być takie same";
-            }
-            else
-            {
-                $check = $this->getDoctrine()->getRepository('AppBundle:ProgramUser')->findOneBy(array('login'=>$user1->getLogin()));
-                if(!$check)
-                {
-                    $user1->setAdmin(0);
-                    $manager = $this->getDoctrine()->getManager();
-                    $manager->persist($user1);
-                    $manager->flush();
-                    $error = "dodano użytkownika";
+                $user1->setAdmin(0);
+                if($registerForm['avatar']->getData() == null) $user1->setAwatar("guest.png");
+                else {
+                    $file = $registerForm['avatar']->getData();
+                    $file->move($this->get('kernel')->getRootDir()."\..\web\\", $user1->getLogin()."_awatar.jpg");
+                    $user1->setAwatar($user1->getLogin()."_awatar.jpg");
                 }
-                else
-                {
-                    $error = "taki użytkownik już istnieje";
-                }
+                $user1->setPassword(md5($user1->getPassword()));
+                $manager = $this->getDoctrine()->getManager();
+                $manager->persist($user1);
+                $manager->flush();
             }
         }
         return $this->render('default/register.html.twig', array('RegisterType' => $registerForm->createView(),
-                                                                 'error' => $error));
+                                                                'passwordError' => $passwordError,
+                                                                'loginError' => $loginError,
+                                                                'submitted' => $submitted,
+                                                                'LoginType' => $loginForm->createView()));
     }
     
     /**
@@ -73,6 +78,8 @@ class DefaultController extends Controller
      */
     public function loginAction(Request $request)
     {
+        $LoginType = $this->createForm(LoginType::class);
+        $LoginType->handleRequest($request);
         $session = $request->getSession();
         $session->clear();
         $error = "";
@@ -82,22 +89,35 @@ class DefaultController extends Controller
         if($loginForm->isSubmitted())
         {
             $user1 = $loginForm->getData();
+            $user1->setPassword(md5($user1->getPassword()));
             $check = $this->getDoctrine()->getRepository('AppBundle:ProgramUser')->findOneBy(array('login'=>$user1->getLogin(), 'password'=>$user1->getPassword()));
             if(!$check)
             {
-                $error = "złe dane logowania";
+                $error = "Nieprawidłowe dane logowania.";
             }
             else
             {
                 $session->set('login', $check->getLogin());
                 $session->set('id', $check->getId());
+                $session->set('awatar', $check->getAwatar());
                 $session->set('admin', $check->getAdmin());
                 return $this->redirect("/");
             }
         }
-        return $this->render('default/login.html.twig', array('LoginType' => $loginForm->createView(),
-                                                              'error' => $error,
-                                                              'session' => $session));
+        return $this->render('default/login.html.twig', array('LoginType' => $LoginType->createView(),
+                                                            'error' => $error,
+                                                            'session' => $session,
+                                                            'loginForm' => $loginForm->createView()));
+    }
+    
+    /**
+     * @Route("/logout", name="logout")
+     */
+    public function logoutAction(Request $request)
+    {
+        $session = $request->getSession();
+        $session->clear();
+        return $this->redirect("/");
     }
     
     /**
@@ -152,12 +172,14 @@ class DefaultController extends Controller
      * @Route("/recipes", name="recipes")
      */
     public function recipesAction(Request $request)
-    { 
+    {
+        $loginType = $this->createForm(LoginType::class);
         $message = "";
         $recipes = $this->getDoctrine()->getRepository('AppBundle:Recipe')->findAll();
         $categories = $this->getDoctrine()->getRepository('AppBundle:Category')->findAll();
         return $this->render('default/index.html.twig', array('Recipes' => $recipes,
-                                                              'Categories' => $categories));
+                                                            'Categories' => $categories,
+                                                            'LoginType' => $loginType->createView()));
     }
     
     /**
@@ -173,12 +195,15 @@ class DefaultController extends Controller
         $recipeForm->handleRequest($request);
         if($recipeForm->isSubmitted())
         {
+           
             $recipe = $recipeForm->getData();
             $userId = $session->get('id');
             $recipe->setUserId($userId);
             $pom = $recipe->getRecipeCategoryId();
             $recipeid = $pom->getId();
             $recipe->setRecipeCategoryId($recipeid);
+            
+            $recipe->setImage($recipe->getTitle()."_awatar.jpg");
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($recipe);
             $manager->flush();
@@ -186,7 +211,8 @@ class DefaultController extends Controller
             return $this->redirect("/recipes");
         }
         return $this->render('default/recipe.html.twig', array('RecipeType' => $recipeForm->createView(),
-                                                               'message' => $message));
+                                                               'message' => $message,
+                                                               'image' => $recipe->getPicture()));
     }
     
     /**
@@ -234,7 +260,7 @@ class DefaultController extends Controller
  
         $manager = $this->getDoctrine()->getManager();
 		$builder = $manager->createQueryBuilder();
-		$builder->select(array('c.content', 'u.login'))
+		$builder->select(array('c.content', 'u.login', 'u.awatar'))
 				->from('AppBundle:Comment', 'c')
 				->join('AppBundle:ProgramUser', 'u', 'WITH', 'u.id = c.user_id')
 				->where('c.recipe_id = '.$id);
@@ -242,7 +268,8 @@ class DefaultController extends Controller
         return $this->render('default/recipeView.html.twig', array('recipe' => $recipe,
                                                                    'user_id' => $user_id,
                                                                    'comment' => $comment,
-                                                                   'category' => $category));
+                                                                   'category' => $category,
+                                                                   'image' => $recipe->getPicture()));
     }
     
     /**
@@ -283,4 +310,29 @@ class DefaultController extends Controller
                                                                'message' => $message,
                                                                'recipeId' => $session->get('recipe_id')));
     }
+    
+    /**
+     * @Route("/account", name="account")
+     */
+    public function accountAction(Request $request)
+    {
+        $loginForm = $this->createForm(LoginType::class);
+        $session = $request->getSession();
+        $user = $this->getDoctrine()->getRepository('AppBundle:ProgramUser')->findOneBy(array('id'=>$session->get('id')));
+        $awatarForm = $this->createForm(AwatarType::class);
+        $awatarForm->handleRequest($request);
+        if($awatarForm->isSubmitted())
+        {
+            $file = $awatarForm['avatar']->getData();
+            $file->move($this->get('kernel')->getRootDir()."\..\web\\", $session->get('login')."_awatar.jpg");
+            $session->set('awatar', $session->get('login')."_awatar.jpg");
+            $manager = $this->getDoctrine()->getManager();
+            $user->setAwatar($session->get('login')."_awatar.jpg");
+            $manager->persist($user);
+            $manager->flush();
+        }
+        return $this->render('default/account.html.twig', array('awatarForm' => $awatarForm->createView(),
+                                                                'LoginType' => $loginForm->createView()));
+    }
+    
 }

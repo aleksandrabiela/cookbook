@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="well" style="background-color: #222222; max-width: 400px; text-align: center; color: #FFFFFF; margin: 0px auto; border-radius: 5%;">
+        <h4>Ustawienia konta</h4>
+        <p>Zmiana awatara<p>
+        <img src="{{ asset(app.session.get('awatar')) }}" style="width: 150px;" />
+        {{ form_start(awatarForm) }}
+        {{ form_widget(awatarForm.avatar, {'attr': {'class': 'filestyle', 'data-buttonName' : 'btn-primary'}}) }}
+        {{ form_widget(awatarForm.Zapisz, {'attr': {'class': 'btn btn-primary', 'style' : 'margin-top: 5px;'}}) }}
+        {{ form_end(awatarForm) }}
+    </div>
+{% endblock %}

@@ -1,21 +1,35 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    
-    <div class="well" style="text-align:center">
-        <h2>
-            <small> REJESTRACJA </small>
-        </h2>
-        {{ error }}
+    <div class="well" style="background-color: #222222; max-width: 400px; text-align: center; color: #FFFFFF; margin: 0px auto; border-radius: 5%;">
+        {% if passwordError or loginError %}
+            <div class="alert alert-danger" role="alert">
+                {% if loginError %}
+                   Wpisany login jest już zajęty. 
+                {% endif %}
+                {% if loginError and passwordError %} <br /> {% endif %}
+                {% if passwordError %}
+                   Wpisane hasła różnią się.
+                {% endif %}
+            </div>
+        {% elseif submitted %}
+            <div class="alert alert-success" role="alert">Konto zostało utworzone.</div>
+        {% endif %}
+        <h4>Tworzenie nowego konta</h4>
         {{ form_start(RegisterType) }}
-        {{ form_widget(RegisterType.login, {'attr': {'class': 'form-control register_field', 'placeholder': "LOGIN"}} ) }}
-        <br/>
-        {{ form_widget(RegisterType.password, {'attr': {'class': 'form-control register_field', 'placeholder': "HASŁO"}} ) }}
-        <br/>
-        {{ form_widget(RegisterType.password2, {'attr': {'class': 'form-control register_field', 'placeholder': "POWTÓRZ HASŁO"}} ) }}
-        <br/>
+        <p>login:</p>
+        {{ form_widget(RegisterType.login, {'attr': {'class': 'form-control register_field' }} ) }}
+        <p>hasło:</p>
+        {{ form_widget(RegisterType.password, {'attr': {'class': 'form-control register_field'}} ) }}
+        <p>powtórz hasło:</p>
+        {{ form_widget(RegisterType.password2, {'attr': {'class': 'form-control register_field'}} ) }}
+        <hr>
+        <h4>dane dodatkowe</h4>
+        <p>awatar:</p>
+        {{ form_widget(RegisterType.avatar, {'attr': {'class': 'filestyle', 'data-buttonName' : 'btn-primary'}}) }}
+        <p>napisz coś o sobie:</p>
+        {{ form_widget(RegisterType.about, {'attr': {'class': 'form-control', 'style' : 'margin: 5px auto; resize: vertical;', 'rows' : '7'}} ) }}
         {{ form_widget(RegisterType.ok, {'attr': {'class': 'btn btn-primary'}}) }}
-        {{ form_end(RegisterType) }}
+        {{ form_end(RegisterType) }} 
     </div>
-    
 {% endblock %}
